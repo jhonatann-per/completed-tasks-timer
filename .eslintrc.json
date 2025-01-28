@@ -1,0 +1,66 @@
+// {
+//   "parser": "@typescript-eslint/parser",
+//   "parserOptions": {
+//     "ecmaVersion": 2020,
+//     "sourceType": "module",
+//     "ecmaFeatures": {
+//       "jsx": true
+//     }
+//   },
+//   "settings": {
+//     "react": {
+//       "version": "detect"
+//     },
+//     "import/resolver": {
+//       "node": {
+//         "extensions": [".js", ".jsx", ".ts", ".tsx"]
+//       }
+//     }
+//   },
+//   "extends": [
+//     "airbnb",
+//     "airbnb/hooks",
+//     "plugin:@typescript-eslint/recommended",
+//     "prettier",
+//     "plugin:prettier/recommended"
+//   ],
+//   "plugins": ["react", "@typescript-eslint", "prettier"],
+//   "rules": {
+//     "prettier/prettier": [
+//       "error",
+//       {
+//         "endOfLine": "auto",
+//         "singleQuote": true,
+//         "trailingComma": "none",
+//         "arrowParens": "avoid"
+//       }
+//     ],
+//     "react/jsx-filename-extension": [
+//       1,
+//       {
+//         "extensions": [".jsx", ".tsx"]
+//       }
+//     ],
+//     "import/extensions": [
+//       "error",
+//       "ignorePackages",
+//       {
+//         "ts": "never",
+//         "tsx": "never"
+//       }
+//     ],
+//     "import/no-extraneous-dependencies": ["error", { "devDependencies": ["**/*.test.tsx", "**/*.test.ts"] }],
+//     "import/prefer-default-export": "off", 
+//     "react/react-in-jsx-scope": "off", 
+//     "jsx-a11y/anchor-is-valid": "off", 
+//     "@typescript-eslint/no-empty-interface": "off" 
+//   },
+//   "overrides": [
+//     {
+//       "files": ["*.ts", "*.tsx"],
+//       "rules": {
+//         "@typescript-eslint/explicit-module-boundary-types": "off"
+//       }
+//     }
+//   ]
+// }
