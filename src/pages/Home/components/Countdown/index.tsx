@@ -7,36 +7,40 @@ import { CyclesContext } from "../..";
 
 
 export const Countdown = () => {
-  const { activeCycle, activeCycleId, markCurrentCycleAsFinished } = useContext(CyclesContext)
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
-
+  const { 
+    activeCycle, 
+    activeCycleId, 
+    markCurrentCycleAsFinished, 
+    amountSecondsPassed,
+    setSecondsPassed,
+  } = useContext(CyclesContext)
+  
   const totalSeconds = activeCycle ?  activeCycle.minutesAmount * 60 : 0;
 
 
   useEffect(() => {
-    let interval: number;
-  
-    if (activeCycle) {
-      interval = setInterval(() => {
-        const secondsDifference = differenceInSeconds(
-          new Date(),
-          activeCycle.startDate
-        );
-  
-        if (secondsDifference >= totalSeconds) {
-          markCurrentCycleAsFinished()
-          setAmountSecondsPassed(totalSeconds)
-          clearInterval(interval)
-        } else {
-          setAmountSecondsPassed(secondsDifference);
-        }
-      }, 1000); // Intervalo de 1 segundo
-    }
-  
-    return () => {
-      clearInterval(interval);
-    };
-  }, [activeCycle, totalSeconds, activeCycleId, markCurrentCycleAsFinished]);
+  let interval: number;
+
+  if (activeCycle) {
+    interval = setInterval(() => {
+      const secondsDifference = differenceInSeconds(
+        new Date(),
+        activeCycle.startDate
+      );
+
+      if (secondsDifference >= totalSeconds) {
+        markCurrentCycleAsFinished();
+        setSecondsPassed(totalSeconds);
+        clearInterval(interval);
+      } else {
+        setSecondsPassed(secondsDifference);
+      }
+    }, 1000);
+  }
+
+  return () => clearInterval(interval);
+}, [activeCycle, totalSeconds, activeCycleId, setSecondsPassed, markCurrentCycleAsFinished]);
+
 
 
 
