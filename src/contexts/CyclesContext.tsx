@@ -1,21 +1,12 @@
-import { createContext, useState, ReactNode, useReducer, act } from "react"
-
+import { createContext, useState, ReactNode, useReducer, useEffect } from "react"
+import { Cycle, cyclesReducer } from '../reducers/cycles/reducer';
+import { ActionTypes, addNewCycleAction, interruptCurrentCycleAction, markCurrentCyclesAsFinishedAction } from "../reducers/cycles/actions";
+import { differenceInSeconds } from "date-fns";
 
 interface CreateCycleData{
     task: string;
     minutesAmount: number;
 }
-
-interface Cycle {
-  id: string
-  task: string
-  minutesAmount: number
-  startDate: Date
-  interruptedDate?: Date
-  finishedDate?: Date
-}
-
-
 interface CyclesContextType {
   cycles: Cycle[];
   activeCycle: Cycle | undefined;
@@ -34,72 +25,55 @@ interface CyclesContextProviderProps {
   children: ReactNode
 }
 
-interface CyclesState {
-  cycles: Cycle[],
-  activeCycleId: string | null,
-}
-
 
 export const CyclesContextProvider = ({ children }: CyclesContextProviderProps) => {
 
-  const [cyclesState, dispatch] = useReducer((state: CyclesState, action: any) => {
-    
-    switch(action.type){
-      case 'ADD_NEW_CYCLE':
-        return{
-          ...state,
-          cycles: [...state.cycles, action.payload.newCycle],
-          activeCycleId: action.payload.newCycle.id,
+  const [cyclesState, dispatch] = useReducer(cyclesReducer,
+      {
+        cycles: [],
+        activeCycleId: null,
+      }, (initialState) => {
+        const storedStateAsJSON = localStorage.getItem('@ignite-time:cycles-state-1.0.0');
+        
+        if(storedStateAsJSON) {
+          return JSON.parse(storedStateAsJSON);
         }
-      case 'INTERRUPT_CURRENT_CYCLE':
-        return {
-          ...state,
-          cycles: state.cycles.map((cycle) =>
-            cycle.id === state.activeCycleId
-              ? { ...cycle, interruptedDate: new Date() }
-              : cycle
-          ),
-          activeCycleId: null,
-        }
-      case 'MARK_CURRENT_CYCLE_AS_FINISHED':
-        return {
-          ...state,
-          cycles: state.cycles.map((cycle) =>
-            cycle.id === state.activeCycleId
-              ? { ...cycle, finishedDate: new Date() }
-              : cycle
-          ),
-          activeCycleId: null,
-        }
-      default:
-        return state
-    }
-    }, {
-      cycles: [],
-      activeCycleId: null,
-    })
+
+        return initialState;
+
+      })
 
     
-    const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
     const { cycles, activeCycleId} = cyclesState;
-
-
     const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId);
   
+    const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
+      if(activeCycle) {
+        return differenceInSeconds(
+          new Date(),
+          new Date(activeCycle.startDate),
+        )
+      }
+      return 0
+    })
+
+      useEffect(() => {
+        const stateJSON = JSON.stringify(cyclesState)
+        localStorage.setItem('@ignite-time:cycles-state-1.0.0', stateJSON)
+
+      }, [cyclesState])
+
+
+
+    
 
     const setSecondsPassed = (seconds: number) => {
         setAmountSecondsPassed(seconds)
       }
     
 
-
     const markCurrentCycleAsFinished = () => {
-      dispatch({
-        type: 'MARK_CURRENT_CYCLE_AS_FINISHED',
-        payload: {
-          activeCycleId,
-        }
-      })
+      dispatch(markCurrentCyclesAsFinishedAction())
       }
 
 
@@ -112,23 +86,13 @@ export const CyclesContextProvider = ({ children }: CyclesContextProviderProps) 
           minutesAmount: data.minutesAmount,
           startDate: new Date(),
         }
-        dispatch({
-          type: 'ADD_NEW_CYCLE',
-          payload: {
-            newCycle,
-          }
-        })
+        dispatch(addNewCycleAction(newCycle))
         setAmountSecondsPassed(0)
       };
     
     
       const interruptCurrentCycle = () => {
-        dispatch({
-          type: 'INTERRUPT_CURRENT_CYCLE',
-          payload: {
-            activeCycleId,
-          }
-        });
+        dispatch(interruptCurrentCycleAction())
       };
     
 
